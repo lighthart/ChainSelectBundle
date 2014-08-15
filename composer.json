@@ -1,0 +1,14 @@
+{
+    "name": "lighthart/selectize-bundle",
+    "license": "MIT",
+    "type": "symfony-bundle",
+    "description": "Grid Bundle for use with Symfony",
+    "require": {
+        "knplabs/knp-paginator-bundle": "dev-master",
+        "knplabs/knp-snappy-bundle": "dev-master"
+    },
+    "autoload": {
+        "psr-0": { "Lighthart\\SelectizeBundle": "" }
+    },
+    "target-dir": "Lighthart/SelectizeBundle"
+}

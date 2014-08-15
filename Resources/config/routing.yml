@@ -1,0 +1,3 @@
+lighthart_selectize_homepage:
+    path:     /hello/{name}
+    defaults: { _controller: LighthartSelectizeBundle:Default:index }
