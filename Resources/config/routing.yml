@@ -1,3 +1,6 @@
-lighthart_selectize_homepage:
-    path:     /hello/{name}
-    defaults: { _controller: LighthartSelectizeBundle:Default:index }
+lighthart_selectize_entity:
+    path:     /{class}/{criteria}
+    defaults: { _controller: LighthartSelectizeBundle:Search:search, 'criteria': null }
+    requirements:
+        class: \w+
+        criteria: ((\w+_\d+(,\d+)*)(__(\w+_\d+(,\d+)))*)*
