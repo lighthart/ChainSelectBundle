@@ -6,6 +6,16 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 
 class SearchController extends Controller
 {
+
+    private $legalCriteria =
+        [
+    'limit'  => null,
+    'page'   => null,
+    'count'  => null,
+    'qbOnly' => null,
+    ];
+
+
     public function searchAction( $class, $criteria = null ) {
 
         $classPath = str_replace( '_', '\\', $class );
@@ -13,6 +23,8 @@ class SearchController extends Controller
         $class     = substr( strrchr( $class, '_' ), 1 );
         $em        = $this->getDoctrine()->getManager();
         $em->getMetadataFactory()->getAllMetadata();
+
+
 
         if ( !$em->getMetadataFactory()->hasMetadatafor( $classPath ) ) {
             throw $this->createNotFoundException( 'No metadata for class: '.$classPath );
@@ -27,10 +39,12 @@ class SearchController extends Controller
                 $metadata->getAssociationMappings(),
                 function( $e ) {
                     return $e['type']<=2;}
-                    )
-            );
+            )
+        );
 
         $criteria = array_filter( explode( '__', $criteria ) );
+        $options = [];
+        var_dump( $criteria );
 
         foreach ( $criteria as $key => $value ) {
             unset( $criteria[$key] );
@@ -39,42 +53,43 @@ class SearchController extends Controller
             if ( in_array( $newKey, $associations ) ) {
                 $criteria[$newKey] = $newValue;
             }
+
+            if ( in_array( $newKey, array_keys($this->legalCriteria ) ) ) {
+                $options[$newKey] = $newValue;
+            }
         }
 
-        $rep = $this->getDoctrine()->getRepository($classPath);
-        $qb = $rep->createQueryBuilder('root');
+        $rep = $this->getDoctrine()->getRepository( $classPath );
+        $qb = $rep->createQueryBuilder( 'root' );
 
-        print_r($qb->getQuery()->getDql());
-        print_r("<br>");
-        foreach ($criteria as $field => $values){
-            $qb->andWhere($qb->expr()->in('root.'.$field, ':'.$field));
-            $qb->setParameter(':'.$field, explode(',', $values));
-            print_r($qb->getQuery()->getDql());
-            print_r("<br>");
+        foreach ( $criteria as $field => $values ) {
+            $qb->andWhere( $qb->expr()->in( 'root.'.$field, ':'.$field ) );
+            $qb->setParameter( ':'.$field, explode( ',', $values ) );
         }
 
-        $results = $qb->getQuery()->getResult();
-        var_dump($results);
+        foreach ( $options as $field => $value ) {
+            if ( isset ( $options['count'] ) && preg_match( '/\d+/', $options['count'] ) ) {
+                // ignore paging if count is set
+                // we are getting a total count in that case
+            } elseif ( isset ( $options['limit'] ) && preg_match( '/\d+/', $options['limit'] ) ) {
+                $qb->setMaxResults( $options['limit'] );
+                if ( isset ( $options['page'] ) && preg_match( '/\d+/', $options['page'] ) ) {
+                    // implicitly limit to 10 results unless otherwise specified
+                    $qb->setFirstResult( ( $options['page']-1 ) * ( $options['limit']?:10 ) );
+                }
+            }
+        }
 
-        // $legalCriteria = [
+        if ( isset ( $options['count'] ) && $options['count'] && preg_match( '/\d+/', $options['count'] ) ) {
+            $qb->select( $qb->expr()->count( 'DISTINCT root' ) );
+            var_dump($qb->getQuery()->getSingleScalarResult());die;
+            return $qb->getQuery()->getSingleScalarResult();
+        } elseif ( isset( $options['qbOnly'] ) && $options['qbOnly'] && preg_match( '/\d+/', $options['qbOnly'] ) ) {
+            return $qb;
+        } else {
+            return $qb->getQuery()->getResult();
+        }
 
-        // 'filter'   => null,
-
-        // // searches is an array of fields to search different than default
-        // 'searches'=> null,
-
-        // 'limit'  => null,
-        // 'page'   => null,
-        // 'order'  => null,
-        // 'count'  => null,
-        // ],
-
-        var_dump( $class );
-        var_dump( $urlPath );
-        var_dump( $classPath );
-        var_dump( $criteria );
-        var_dump( $associations );
-        die;
         return $this->render( 'LighthartSelectizeBundle:Default:index.html.twig', array( 'name' => $name ) );
     }
 }
