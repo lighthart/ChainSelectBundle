@@ -1,6 +1,0 @@
-{"objects":[
-{%- for resultKey, resultValue in results -%}
-    { "id": "{{-resultKey-}}","text": "{{-resultValue-}}"
-{%- if not loop.last -%},{%- endif -%}]
-{% endfor -%},"total": {{-total-}}
-}

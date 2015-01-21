@@ -3,8 +3,9 @@
 namespace Lighthart\SelectizeBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Request;
 
-class SearchController extends Controller
+class QueryController extends Controller
 {
     private $legalCriteria =
         [
@@ -14,7 +15,7 @@ class SearchController extends Controller
     'qbOnly' => null,
     ];
 
-    public function searchAction($class, $method=null, $criteria = null)
+    public function jsonAction(Request $request, $class, $method=null, $criteria = null)
     {
 
         if ($method) {
@@ -98,9 +99,11 @@ class SearchController extends Controller
             }
         }
 
+        $callback = $request->query->get( 'callback' );
+
         if ($count) {
             $qb->select($qb->expr()->count('DISTINCT root'));
-            return $this->render('LighthartSelectizeBundle:Default:count.html.twig', [ 'count' => $qb->getQuery()->getSingleScalarResult() ]);
+            return $this->render('LighthartSelectizeBundle::count.html.twig', [ 'count' => $qb->getQuery()->getSingleScalarResult() ]);
 
         } elseif (isset($options['qbOnly']) && $options['qbOnly'] && preg_match('/\d+/', $options['qbOnly'])) {
             return $qb;
@@ -110,7 +113,7 @@ class SearchController extends Controller
             array_map(function($res) use (&$results,$method) { $results[$res->getId()]=$res->$method(); }, $result);
             $qb->select($qb->expr()->count('DISTINCT root'));
             $total = $qb->getQuery()->getSingleScalarResult();
-            return $this->render('LighthartSelectizeBundle:Default:results.html.twig', [ 'results' => $results, 'total'=> $total ]);
+            return $this->render('LighthartSelectizeBundle::results.html.twig', [ 'results' => $results, 'total'=> $total, 'callback' => $callback ]);
         }
     }
 }

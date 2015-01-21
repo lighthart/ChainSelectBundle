@@ -1,6 +1,6 @@
 lighthart_selectize_entity:
     path:     /{class}/{method}/{criteria}
-    defaults: { _controller: LighthartSelectizeBundle:Search:search, 'criteria': null, 'method': null }
+    defaults: { _controller: LighthartSelectizeBundle:Query:json, 'criteria': null, 'method': null }
     requirements:
         class: \w+
         criteria: ((\w+_\d+(,\d+)*)(__(\w+_\d+(,\d+)))*)*
