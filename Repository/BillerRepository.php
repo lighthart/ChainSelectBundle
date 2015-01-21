@@ -4,52 +4,52 @@ namespace Mesd\OrmedBundle\Repository;
 
 use Doctrine\ORM\EntityRepository;
 
-class JSONRepository extends EntityRepository {
-
+class BillerRepository extends EntityRepository
+{
     // this probably needs to be a service
 
-    public function addFilter( $qb, $filter, $searches ) {
-
+    public function addFilter($qb, $filter, $searches)
+    {
         //  $filter is the explicit request from user
         //  $searches are the fields for while the filter should be searched
 
-        $numbers = ( isset( $searches['numbers'] ) && $searches['numbers'] ) ? $searches['numbers'] : array();
-        $dates   = ( isset( $searches['dates'] )   && $searches['dates'] )   ? $searches['dates']   : array();
-        $strings = ( isset( $searches['strings'] ) && $searches['strings'] ) ? $searches['strings'] : array();
+        $numbers = (isset($searches['numbers']) && $searches['numbers']) ? $searches['numbers'] : [];
+        $dates   = (isset($searches['dates'])   && $searches['dates'])   ? $searches['dates']   : [];
+        $strings = (isset($searches['strings']) && $searches['strings']) ? $searches['strings'] : [];
 
-        if ( $numbers == array() && $dates ==array() && $strings ==array() ) {
+        if ($numbers == [] && $dates == [] && $strings == []) {
             // just bail out if there are no fields to search in
             return $qb;
         }
 
-        $filter = array_filter($filter, function($e) {return !!$e;});
+        $filter = array_filter($filter, function ($e) {return !!$e;});
 
-        if ( array( '' ) == $filter || array() == $filter ) {
+        if ([ '' ] == $filter || [] == $filter) {
             // just bail out if there is nothing to search for
             return $qb;
         }
 
-        foreach ( $filter as $key => $value ) {
-            $value = trim( $value );
-            $value = str_replace( "'", "''", $value );
-            $value = str_replace( ",", "", $value );
-            $cqb   = array();
+        foreach ($filter as $key => $value) {
+            $value = trim($value);
+            $value = str_replace("'", "''", $value);
+            $value = str_replace(",", "", $value);
+            $cqb   = [];
 
-            if ( $strings != array() ) {
-                foreach ( $strings as $stringKeys => $stringValues ) {
-                    $cqb[] = $qb->expr()->like( "LOWER(CONCAT($stringValues, ''))", "'%".strtolower( $value )."%'" );
+            if ($strings != []) {
+                foreach ($strings as $stringKeys => $stringValues) {
+                    $cqb[] = $qb->expr()->like("LOWER(CONCAT($stringValues, ''))", "'%" . strtolower($value) . "%'");
                 }
             }
 
-            if ( $numbers != array() ) {
-                foreach ( $numbers as $numberKeys => $numberValues ) {
-                    $cqb[] = $qb->expr()->like( "CONCAT($numberValues, '')", "'%$value%'" );
+            if ($numbers != []) {
+                foreach ($numbers as $numberKeys => $numberValues) {
+                    $cqb[] = $qb->expr()->like("CONCAT($numberValues, '')", "'%$value%'");
                 }
             }
 
-            if ( $dates != array() ) {
-                foreach ( $dates as $dateKeys => $dateValues ) {
-                    $cqb[] = $qb->expr()->like( "LOWER(CONCAT($dateValues, ''))", "'%".strtolower( $value )."%'" );
+            if ($dates != []) {
+                foreach ($dates as $dateKeys => $dateValues) {
+                    $cqb[] = $qb->expr()->like("LOWER(CONCAT($dateValues, ''))", "'%" . strtolower($value) . "%'");
                 }
             }
 
@@ -70,9 +70,8 @@ class JSONRepository extends EntityRepository {
             //         }
             //     }
             // }
-            $qb->andWhere( call_user_func_array( array( $qb->expr(), "orx" ), $cqb ) );
+            $qb->andWhere(call_user_func_array([ $qb->expr(), "orx" ], $cqb));
         }
-
 
         return $qb;
     }
