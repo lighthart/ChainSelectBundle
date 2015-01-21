@@ -1,5 +1,5 @@
 {
-    "name": "lighthart/selectize-bundle",
+    "name": "lighthart/chain-select-bundle",
     "license": "MIT",
     "type": "symfony-bundle",
     "description": "Grid Bundle for use with Symfony",
@@ -8,7 +8,7 @@
         "knplabs/knp-snappy-bundle": "dev-master"
     },
     "autoload": {
-        "psr-0": { "Lighthart\\SelectizeBundle": "" }
+        "psr-0": { "Lighthart\\ChainSelectBundle": "" }
     },
-    "target-dir": "Lighthart/SelectizeBundle"
+    "target-dir": "Lighthart/ChainSelectBundle"
 }
