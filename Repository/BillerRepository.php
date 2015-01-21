@@ -6,6 +6,9 @@ use Doctrine\ORM\EntityRepository;
 
 class BillerRepository extends EntityRepository
 {
+    // I have no idea why these are here
+    //
+    //
     // this probably needs to be a service
 
     public function addFilter($qb, $filter, $searches)

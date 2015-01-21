@@ -10,12 +10,20 @@ class SearchController extends Controller
         [
     'limit'  => null,
     'page'   => null,
-    'count'  => null,
+    // 'count'  => null,
     'qbOnly' => null,
     ];
 
-    public function searchAction($class, $criteria = null)
+    public function searchAction($class, $method=null, $criteria = null)
     {
+
+        if ($method) {
+        } else {
+            throw $this->createNotFoundException('Method for display not Specified');
+        }
+
+        var_dump($method);
+
         $classPath = str_replace('_', '\\', $class);
         $urlPath   = $class;
         $class     = substr(strrchr($class, '_'), 1);
@@ -58,6 +66,8 @@ class SearchController extends Controller
             }
         }
 
+        $count = ('count' == $method);
+
         var_dump($criteria);
 
         $rep = $this->getDoctrine()->getRepository($classPath);
@@ -76,7 +86,7 @@ class SearchController extends Controller
         // print_r($qb->getQuery()->getDQL());die;
 
         foreach ($options as $field => $value) {
-            if (isset($options['count']) && preg_match('/\d+/', $options['count'])) {
+            if ($count) {
                 // ignore paging if count is set
                 // we are getting a total count in that case
             } elseif (isset($options['limit']) && preg_match('/\d+/', $options['limit'])) {
@@ -88,18 +98,19 @@ class SearchController extends Controller
             }
         }
 
-        if (isset($options['count']) && $options['count'] && preg_match('/\d+/', $options['count'])) {
+        if ($count) {
             $qb->select($qb->expr()->count('DISTINCT root'));
-            var_dump($qb->getQuery()->getSingleScalarResult());
-            die;
+            return $this->render('LighthartSelectizeBundle:Default:count.html.twig', [ 'count' => $qb->getQuery()->getSingleScalarResult() ]);
 
-            return $qb->getQuery()->getSingleScalarResult();
         } elseif (isset($options['qbOnly']) && $options['qbOnly'] && preg_match('/\d+/', $options['qbOnly'])) {
             return $qb;
         } else {
-            return $qb->getQuery()->getResult();
+            $result = $qb->getQuery()->getResult();
+            $results=[];
+            array_map(function($res) use (&$results,$method) { $results[$res->getId()]=$res->$method(); }, $result);
+            $qb->select($qb->expr()->count('DISTINCT root'));
+            $total = $qb->getQuery()->getSingleScalarResult();
+            return $this->render('LighthartSelectizeBundle:Default:results.html.twig', [ 'results' => $results, 'total'=> $total ]);
         }
-
-        return $this->render('LighthartSelectizeBundle:Default:index.html.twig', [ 'name' => $name ]);
     }
 }
