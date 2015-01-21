@@ -1,6 +1,6 @@
 <?php
 
-namespace Lighthart\SelectizeBundle\Tests\Controller;
+namespace Lighthart\ChainSelectBundle\Tests\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 

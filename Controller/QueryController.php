@@ -1,6 +1,6 @@
 <?php
 
-namespace Lighthart\SelectizeBundle\Controller;
+namespace Lighthart\ChainSelectBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,8 +23,6 @@ class QueryController extends Controller
             throw $this->createNotFoundException('Method for display not Specified');
         }
 
-        var_dump($method);
-
         $classPath = str_replace('_', '\\', $class);
         $urlPath   = $class;
         $class     = substr(strrchr($class, '_'), 1);
@@ -36,7 +34,6 @@ class QueryController extends Controller
         }
 
         $metadata = $em->getMetadataFactory()->getMetadataFor($classPath);
-        // var_dump($metadata);
         $associations = array_map(
             function ($e) {
                 return $e['fieldName'];
@@ -48,11 +45,9 @@ class QueryController extends Controller
             )
         );
 
-        var_dump($associations);
 
         $criteria = array_filter(explode('__', $criteria));
         $options  = [];
-        var_dump($criteria);
 
         foreach ($criteria as $key => $value) {
             unset($criteria[$key]);
@@ -69,8 +64,6 @@ class QueryController extends Controller
 
         $count = ('count' == $method);
 
-        var_dump($criteria);
-
         $rep = $this->getDoctrine()->getRepository($classPath);
         $qb  = $rep->createQueryBuilder('root');
 
@@ -84,7 +77,6 @@ class QueryController extends Controller
             $qb->setParameter(':' . $field, $inValues);
         }
 
-        // print_r($qb->getQuery()->getDQL());die;
 
         foreach ($options as $field => $value) {
             if ($count) {
@@ -103,7 +95,7 @@ class QueryController extends Controller
 
         if ($count) {
             $qb->select($qb->expr()->count('DISTINCT root'));
-            return $this->render('LighthartSelectizeBundle::count.html.twig', [ 'count' => $qb->getQuery()->getSingleScalarResult() ]);
+            return $this->render('LighthartChainSelectBundle::count.html.twig', [ 'count' => $qb->getQuery()->getSingleScalarResult() ]);
 
         } elseif (isset($options['qbOnly']) && $options['qbOnly'] && preg_match('/\d+/', $options['qbOnly'])) {
             return $qb;
@@ -113,7 +105,7 @@ class QueryController extends Controller
             array_map(function($res) use (&$results,$method) { $results[$res->getId()]=$res->$method(); }, $result);
             $qb->select($qb->expr()->count('DISTINCT root'));
             $total = $qb->getQuery()->getSingleScalarResult();
-            return $this->render('LighthartSelectizeBundle::results.html.twig', [ 'results' => $results, 'total'=> $total, 'callback' => $callback ]);
+            return $this->render('LighthartChainSelectBundle::results.html.twig', [ 'results' => $results, 'total'=> $total, 'callback' => $callback ]);
         }
     }
 }
