@@ -4,7 +4,7 @@
     "type": "symfony-bundle",
     "description": "Grid Bundle for use with Symfony",
     "require": {
-        "knplabs/knp-paginator-bundle": "dev-master",
+        "knplabs/knp-paginator-bundle": "~2.4",
         "knplabs/knp-snappy-bundle": "dev-master"
     },
     "autoload": {
