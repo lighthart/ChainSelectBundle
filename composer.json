@@ -5,7 +5,7 @@
     "description": "Grid Bundle for use with Symfony",
     "require": {
         "knplabs/knp-paginator-bundle": "~2.4",
-        "knplabs/knp-snappy-bundle": "dev-master"
+        "knplabs/knp-snappy-bundle": "~1.2"
     },
     "autoload": {
         "psr-0": { "Lighthart\\ChainSelectBundle": "" }
