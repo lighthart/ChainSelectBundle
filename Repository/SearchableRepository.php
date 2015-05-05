@@ -1,6 +1,6 @@
 <?php
 
-namespace Mesd\OrmedBundle\Repository;
+namespace AppBundle\Repository;
 
 
 /**
